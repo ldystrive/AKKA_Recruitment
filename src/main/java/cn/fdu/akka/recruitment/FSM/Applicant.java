@@ -17,13 +17,17 @@ public class Applicant extends AbstractFSM<ApplicantState, ApplicantDataInterfac
 				Resume.class,
 				ApplicantData.class,
 					(resume, uninitialized) -> {
-						System.out.println("when Init match Resume");
-						return stay();
-					}
-
-			)
+						System.out.println("when Init match Resume: " + resume);
+						return stay();})
 		);
 
+		whenUnhandled(
+			matchAnyEvent(
+				(event, state) -> {
+					System.out.println("unhandled, event:" + event + " stateName:" + stateName() + " state:" + state);
+					return stay();
+				}));
+		initialize();
 	}
 
 }
