@@ -1,25 +1,27 @@
 package cn.fdu.akka.recruitment.FSM;
 
 import akka.actor.AbstractFSM;
-import cn.fdu.akka.recruitment.Interface.ApplicantDataInterface;
 import cn.fdu.akka.recruitment.common.*;
-import cn.fdu.akka.recruitment.State.ApplicantState;
-import cn.fdu.akka.recruitment.Data.ApplicantData;
 
-public class Applicant extends AbstractFSM<ApplicantState, ApplicantDataInterface>{
+import static cn.fdu.akka.recruitment.FSM.Applicant.State;
+import static cn.fdu.akka.recruitment.FSM.Applicant.State.*;
+import static cn.fdu.akka.recruitment.FSM.Applicant.Data;
+import static cn.fdu.akka.recruitment.FSM.Applicant.Uninitialized.*;
+
+public class Applicant extends AbstractFSM<State, Data>{
 
 	{
-		startWith(ApplicantState.Init, ApplicantData.Uninitialized);
+		startWith(Init, Uninitialized);
 
 		when(
-			ApplicantState.Init,
+			Init,
 			matchEvent(
 				Resume.class,
-				ApplicantData.class,
+				Uninitialized.class,
 					(resume, uninitialized) -> {
 						System.out.println("when Init match Resume: " + resume);
-						return stay();})
-		);
+						return stay();}));
+
 
 		whenUnhandled(
 			matchAnyEvent(
@@ -29,6 +31,14 @@ public class Applicant extends AbstractFSM<ApplicantState, ApplicantDataInterfac
 				}));
 		initialize();
 	}
+
+	enum State{Init, WaitingForInterview, WaitingForNegotiation, WaitingForOffer, End}
+	interface Data {}
+	enum Uninitialized implements Data {
+		Uninitialized
+	}
+
+
 
 }
 
