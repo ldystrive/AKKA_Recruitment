@@ -3,7 +3,7 @@ package cn.fdu.akka.recruitment.common;
 
 import java.util.Date;
 
-public class  Negotiation{
+public final class  Negotiation{
 	private Resume resume;
 	private Date date;
 	private String place;
@@ -12,6 +12,10 @@ public class  Negotiation{
 		this.date = data;
 		this.place = place;
 		this.resume = resume;
+	}
+
+	public Negotiation(Negotiation n) {
+		this(n.resume, n.date, n.place);
 	}
 
 	public Negotiation(Resume resume) {

@@ -10,6 +10,9 @@ import akka.actor.ActorRef;
 import cn.fdu.akka.recruitment.FSM.Applicant;
 
 
+import cn.fdu.akka.recruitment.common.Interview;
+import cn.fdu.akka.recruitment.common.Negotiation;
+import cn.fdu.akka.recruitment.common.Offer;
 import cn.fdu.akka.recruitment.common.Resume;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -38,10 +41,20 @@ public class FSMTest extends JUnitSuite{
 				final ActorRef tActor = system.actorOf(Props.create(Applicant.class));
 				final ActorRef probe = getRef();
 				System.out.println("Applicant test start");
-				tActor.tell(new Resume("abc", "HR", probe), probe);
+				Resume resume = new Resume("abc", "HR", probe, null);
+				tActor.tell(resume, probe);
+				expectMsg(resume.toString());
 
+				Interview interview = new Interview(resume);
+				tActor.tell(interview, probe);
 
-				//system.stop(tActor);
+				Negotiation negotiation = new Negotiation(resume);
+				tActor.tell(negotiation, probe);
+
+				Offer offer = new Offer(resume);
+				tActor.tell(offer, probe);
+
+				system.stop(tActor);
 			}
 		};
 
