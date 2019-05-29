@@ -2,7 +2,7 @@ package cn.fdu.akka.recruitment.common;
 
 import java.util.Date;
 
-public class Interview {
+public final class Interview {
 	private Resume resume;
 	private Date date;
 	private String place;
@@ -13,6 +13,10 @@ public class Interview {
 		this.resume = resume;
 	}
 
+	public Interview(Interview interview) {
+		this(interview.resume, interview.date, interview.place);
+	}
+
 	public Interview(Resume resume) {
 		this.resume = resume;
 		this.date = new Date();
@@ -20,7 +24,7 @@ public class Interview {
 	}
 
 	public String toString() {
-		return "Interview_" + resume + "_" + date + "_" + place;
+		return "Interview_" + resume + "_(" + date + ")_" + place;
 	}
 
 }
