@@ -17,6 +17,16 @@ public final class Resume {
 		this.applicantRef = applicantRef;
 	}
 
+	public Resume(Resume r) {
+		this(r.name, r.position, r.hrRef, r.applicantRef);
+	}
+
+	public ActorRef getHrRef() { return hrRef; }
+
+	public ActorRef getApplicantRef() { return applicantRef; }
+
+	public String getPosition() { return position; }
+
 	public String toString() {
 		return name + '_' + position;
 	}
