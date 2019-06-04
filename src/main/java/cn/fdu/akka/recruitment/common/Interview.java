@@ -3,9 +3,9 @@ package cn.fdu.akka.recruitment.common;
 import java.util.Date;
 
 public final class Interview {
-	private Resume resume;
-	private Date date;
-	private String place;
+	final private Resume resume;
+	final private Date date;
+	final private String place;
 
 	public Interview(Resume resume, Date data, String place) {
 		this.date = data;

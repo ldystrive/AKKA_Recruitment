@@ -2,8 +2,10 @@ package cn.fdu.akka.recruitment.FSM;
 
 import akka.actor.AbstractFSM;
 import akka.actor.ActorRef;
+import akka.actor.Props;
 import cn.fdu.akka.recruitment.common.*;
 import javafx.geometry.Pos;
+import cn.fdu.akka.recruitment.FSM.HR.HRFsm;
 
 public class HRManager {
 
@@ -62,6 +64,8 @@ public class HRManager {
                             Data.class,
                             (resume, data) -> {
                                 System.out.println("HRM when Ready match Resume:" + resume);
+                                final ActorRef hr = getContext().actorOf(Props.create(HRFsm.class));
+                                hr.tell(resume, getSelf());
                                 return stay();
                             }
                     ).event(

@@ -14,4 +14,8 @@ public final class Offer {
 	public String toString() {
 		return "Offer_" + resume;
 	}
+
+	public Resume getResume() {
+		return this.resume;
+	}
 }
