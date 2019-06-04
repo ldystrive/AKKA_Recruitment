@@ -1,7 +1,10 @@
 package cn.fdu.akka.recruitment.FSM;
 
 import akka.actor.AbstractFSM;
+import akka.actor.Props;
 import cn.fdu.akka.recruitment.common.*;
+import cn.fdu.akka.recruitment.FSM.HRManager.HRManagerFsm;
+import akka.actor.ActorRef;
 
 public class HRCompany {
 
@@ -41,12 +44,13 @@ public class HRCompany {
                                 System.out.println("when Ready match Resume:" + resume);
                                 return stay();
                             }
-                    ).
-                    event(
+                    ).event(
                             Position.class,
                             Uninitialized.class,
                             (position, uninitialized) -> {
                                 System.out.println("when Ready match Position:" + position);
+                                final ActorRef hrm = getContext().actorOf(Props.create(HRManagerFsm.class));
+                                hrm.tell(position, getSelf());
                                 return stay();
                             }
                     ));
