@@ -6,11 +6,11 @@ import cn.fdu.akka.recruitment.FSM.Applicant;
 public final class Resume {
 
 	private String name;
-	private String position;
+	private Position position;
 	private final ActorRef hrRef;
 	private final ActorRef applicantRef;
 
-	public Resume(String name, String position, ActorRef hrRef, ActorRef applicantRef) {
+	public Resume(String name, Position position, ActorRef hrRef, ActorRef applicantRef) {
 		this.name = name;
 		this.position = position;
 		this.hrRef = hrRef;
@@ -25,7 +25,7 @@ public final class Resume {
 
 	public ActorRef getApplicantRef() { return applicantRef; }
 
-	public String getPosition() { return position; }
+	public Position getPosition() { return position; }
 
 	public String toString() {
 		return name + '_' + position;
