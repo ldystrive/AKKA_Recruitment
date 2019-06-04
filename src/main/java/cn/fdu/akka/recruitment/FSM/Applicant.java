@@ -1,5 +1,8 @@
 package cn.fdu.akka.recruitment.FSM;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import akka.actor.AbstractFSM;
 import cn.fdu.akka.recruitment.common.*;
 
@@ -21,8 +24,7 @@ public class Applicant extends AbstractFSM<State, Data>{
 					System.out.println("Init matchEvent Resume: " + resume);
 					//resume.getHrRef().tell(resume, getSelf());
 					resume.getHrRef().tell(resume.toString(), getSelf());
-
-					return goTo(WaitingForInterview).using(data.addResume(resume));
+					return goTo(WaitingForInterview).using(data.addElement(resume));
 				}));
 
 		when(
@@ -32,7 +34,7 @@ public class Applicant extends AbstractFSM<State, Data>{
 				Data.class,
 				(interview, data) -> {
 					System.out.println("WaitingForInterview matchEvent Interview, interview:" + interview);
-					return goTo(WaitingForNegotiation).using(data.addInterview(interview));
+					return goTo(WaitingForNegotiation).using(data.addElement(interview));
 				}));
 
 		when(
@@ -42,7 +44,7 @@ public class Applicant extends AbstractFSM<State, Data>{
 				Data.class,
 				(negotiation, data) -> {
 					System.out.println("WaitingForNegotiation matchEvent Negotiation, Negotiation:" + negotiation);
-					return goTo(WaitingForOffer).using(data.addNegotiation(negotiation));
+					return goTo(WaitingForOffer).using(data.addElement(negotiation));
 				}));
 
 		when(
@@ -52,7 +54,7 @@ public class Applicant extends AbstractFSM<State, Data>{
 				Data.class,
 				(offer, data) -> {
 					System.out.println("WaitingForOffer matchEvent Offer, offer:" + offer);
-					return goTo(End).using(data.addOffer(offer));
+					return goTo(End).using(data.addElement(offer));
 				}));
 
 		when(
@@ -76,42 +78,34 @@ public class Applicant extends AbstractFSM<State, Data>{
 	enum State{Init, WaitingForInterview, WaitingForNegotiation, WaitingForOffer, End}
 
 	static final class Data{
-		public Resume resume;
-		public Interview interview;
-		public Negotiation negotiation;
-		public Offer offer;
 
-		public Data() {}
+		// resume, interview, negotiation, offer
+		private final List<Object> data;
 
-		public Data(Data d) {
-			this.resume = d.resume;
-			this.interview = d.interview;
-			this.negotiation = d.negotiation;
-			this.offer = d.offer;
+		public Data() {this.data = null;}
+
+		public Data(List<Object> data) {
+			this.data = data;
 		}
 
-		public Data addResume(Resume r) {
-			Data d = new Data(this);
-			d.resume = new Resume(r);
-			return d;
+		public List<Object> getData(){
+			return data;
 		}
 
-		public Data addInterview(Interview i) {
-			Data d = new Data(this);
-			d.interview = new Interview(i);
-			return d;
+		public Data addElement(Object r) {
+			List<Object> newdata;
+			if(data != null) {
+				newdata = new LinkedList<>(data);
+			}else{
+				newdata = new LinkedList<>();
+			}
+			newdata.add(r);
+			return new Data(newdata);
 		}
 
-		public Data addNegotiation(Negotiation n) {
-			Data d = new Data(this);
-			d.negotiation = new Negotiation(n);
-			return d;
-		}
-
-		public Data addOffer(Offer o) {
-			Data d = new Data(this);
-			d.offer = new Offer(o);
-			return d;
+		@Override
+		public String toString() {
+			return "Data: " + data;
 		}
 	}
 }

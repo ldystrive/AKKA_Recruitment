@@ -81,5 +81,4 @@ public class FSMTest extends JUnitSuite{
 		};
 
 	}
-
 }
