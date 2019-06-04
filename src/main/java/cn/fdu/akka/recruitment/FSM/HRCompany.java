@@ -6,9 +6,7 @@ import cn.fdu.akka.recruitment.common.*;
 public class HRCompany {
 
     public static enum HrState {
-        Ready,
-        GetResume,
-        GetPosition
+        Ready
     }
 
     public static interface Data{}
@@ -41,7 +39,7 @@ public class HRCompany {
                             Uninitialized.class,
                             (resume, uninitialized) -> {
                                 System.out.println("when Ready match Resume:" + resume);
-                                return goTo(HrState.GetResume);
+                                return stay();
                             }
                     ).
                     event(
@@ -49,9 +47,20 @@ public class HRCompany {
                             Uninitialized.class,
                             (position, uninitialized) -> {
                                 System.out.println("when Ready match Position:" + position);
-                                return goTo(HrState.GetPosition);
+                                return stay();
                             }
                     ));
+
+            whenUnhandled(
+                    matchAnyEvent(
+                            (event, state) -> {
+                                System.out.println("unhandled, event:" + event + " stateName:" + stateName() + "state:" + state);
+                                return stay();
+                            }
+                    )
+            );
+
+            initialize();
         }
     }
 }

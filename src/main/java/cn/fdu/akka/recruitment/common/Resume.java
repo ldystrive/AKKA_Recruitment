@@ -25,7 +25,7 @@ public final class Resume {
 
 	public ActorRef getApplicantRef() { return applicantRef; }
 
-	public String getPosition() { return position; }
+	public Position getPosition() { return position; }
 
 	public String toString() {
 		return name + '_' + position;

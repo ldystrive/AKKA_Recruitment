@@ -10,10 +10,8 @@ import akka.actor.ActorRef;
 import cn.fdu.akka.recruitment.FSM.Applicant;
 
 
-import cn.fdu.akka.recruitment.common.Interview;
-import cn.fdu.akka.recruitment.common.Negotiation;
-import cn.fdu.akka.recruitment.common.Offer;
-import cn.fdu.akka.recruitment.common.Resume;
+import cn.fdu.akka.recruitment.FSM.HRCompany;
+import cn.fdu.akka.recruitment.common.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,13 +33,32 @@ public class FSMTest extends JUnitSuite{
 	}
 
 	@Test
+	public void testHRCompany(){
+		new TestKit(system) {
+			{
+				final ActorRef tActor = system.actorOf(Props.create(HRCompany.HRCompanyFsm.class));
+				final ActorRef probe = getRef();
+				System.out.println("HRCompany test start");
+				Resume resume = new Resume("abc", new Position("HR"), probe, null);
+				tActor.tell(resume, probe);
+//				expectMsg(resume.toString());
+
+				Position position = new Position("HR");
+				tActor.tell(position, probe);
+
+//				system.stop(tActor);
+			}
+		};
+	}
+
+	@Test
 	public void testApplicantActor() {
 		new TestKit(system) {
 			{
 				final ActorRef tActor = system.actorOf(Props.create(Applicant.class));
 				final ActorRef probe = getRef();
 				System.out.println("Applicant test start");
-				Resume resume = new Resume("abc", "HR", probe, null);
+				Resume resume = new Resume("abc", new Position("HR"), probe, null);
 				tActor.tell(resume, probe);
 				expectMsg(resume.toString());
 
