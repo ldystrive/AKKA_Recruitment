@@ -9,6 +9,15 @@ public class Position {
     private final ActorRef hrRef;
     private final ActorRef companyRef;
 
+    public ActorRef getCompanyRef(){
+        return this.companyRef;
+    }
+
+    public Position () {
+        this.hrRef = null;
+        this.companyRef = null;
+    }
+
     public Position(String name, ActorRef hrRef, ActorRef companyRef) {
         this.name = name;
         this.hrRef = hrRef;

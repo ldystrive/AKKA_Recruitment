@@ -39,13 +39,18 @@ public class FSMTest extends JUnitSuite{
 				final ActorRef tActor = system.actorOf(Props.create(HRCompany.HRCompanyFsm.class));
 				final ActorRef probe = getRef();
 				System.out.println("HRCompany test start");
-				Resume resume = new Resume("abc", new Position("HR"), probe, null);
-				tActor.tell(resume, probe);
+				Resume resume = new Resume("abc", new Position("HR", null, probe), probe, null);
+//				tActor.tell(resume, probe);
 //				expectMsg(resume.toString());
 
-				Position position = new Position("HR");
+				Position position = new Position("HR", null, probe);
 				tActor.tell(position, probe);
+				expectMsg("SUCCESS!");
 
+				tActor.tell(resume, probe);
+
+				final ActorRef applicant = system.actorOf(Props.create(Applicant.class));
+				applicant.tell(resume, probe);
 //				system.stop(tActor);
 			}
 		};
