@@ -10,9 +10,12 @@
 
     <properties>
         <akka.version>2.6.0-M1</akka.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_2.12</artifactId>
@@ -35,6 +38,11 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-scxml</groupId>
+            <artifactId>commons-scxml</artifactId>
+            <version>0.9</version>
         </dependency>
     </dependencies>
 
