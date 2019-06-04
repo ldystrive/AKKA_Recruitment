@@ -21,6 +21,7 @@ public class Applicant extends AbstractFSM<State, Data>{
 					System.out.println("Init matchEvent Resume: " + resume);
 					//resume.getHrRef().tell(resume, getSelf());
 					resume.getHrRef().tell(resume.toString(), getSelf());
+
 					return goTo(WaitingForInterview).using(data.addResume(resume));
 				}));
 

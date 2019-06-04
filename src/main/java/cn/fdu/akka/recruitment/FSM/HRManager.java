@@ -3,6 +3,7 @@ package cn.fdu.akka.recruitment.FSM;
 import akka.actor.AbstractFSM;
 import akka.actor.ActorRef;
 import cn.fdu.akka.recruitment.common.*;
+import javafx.geometry.Pos;
 
 public class HRManager {
 
@@ -13,17 +14,22 @@ public class HRManager {
     }
 
     public final static class Data{
-        public Position position;
+        final public Position position;
 
-        public Data(){}
+        public Data(){
+            this.position = new Position();
+        }
 
         public Data(Data d) {
-            this.position = d.position;
+            this.position = new Position(d.position);
+        }
+
+        public Data(Position position) {
+            this.position = position;
         }
 
         public Data addPosition(Position position) {
-            Data d = new Data(this);
-            d.position = new Position(position);
+            Data d = new Data(position);
             return d;
         }
     }
@@ -39,6 +45,7 @@ public class HRManager {
                             Data.class,
                             (position, data) -> {
                                 System.out.println("HRM when Uninit match Position:" + position);
+                                position.getCompanyRef().tell("SUCCESS!", getSelf());
                                 return goTo(_State.Ready).using(data.addPosition(position));
                             }
                     ).anyEvent(
@@ -70,7 +77,7 @@ public class HRManager {
             when(_State.End,
                     matchAnyEvent(
                             (event, state) -> {
-                                System.out.println("End");
+                                System.out.println("HRM End");
                                 return stay();
                             }
                     )
@@ -79,7 +86,7 @@ public class HRManager {
             whenUnhandled(
 			matchAnyEvent(
 				(event, state) -> {
-					System.out.println("unhandled, event:" + event + " stateName:" + stateName() + " state:" + state);
+					System.out.println("HRM unhandled, event:" + event + " stateName:" + stateName() + " state:" + state);
 					return stay();
 				}));
 

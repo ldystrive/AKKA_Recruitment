@@ -5,6 +5,9 @@ import akka.actor.Props;
 import cn.fdu.akka.recruitment.common.*;
 import cn.fdu.akka.recruitment.FSM.HRManager.HRManagerFsm;
 import akka.actor.ActorRef;
+import javafx.geometry.Pos;
+
+import java.util.HashMap;
 
 public class HRCompany {
 
@@ -12,53 +15,61 @@ public class HRCompany {
         Ready
     }
 
-    public static interface Data{}
+    public final static class Data{
+        final HashMap<String, ActorRef> map;
 
-    public static class ResumenData implements Data{
-        public Resume resume;
-        public ResumenData(Resume resume) {
-            this.resume = resume;
+        public Data() {
+            map = new HashMap<String, ActorRef>();
+        }
+
+        public Data(Data d) {
+            this.map = new HashMap<String, ActorRef>(d.map);
+        }
+
+        public Data addPosition(Position position, ActorRef actor) {
+            Data d = new Data(this);
+            d.map.put(position.toString(), actor);
+            System.out.println("Position: " + position + " hrm: " + actor);
+            return d;
+        }
+
+        public ActorRef getActor(Position position) {
+            return this.map.get(position.toString());
         }
     }
 
-    public static class PositionData implements Data{
-        public Position position;
-        public PositionData(Position position) {
-            this.position = position;
-        }
-    }
-
-    public static enum Uninitialized implements Data {
-        Uninitialized
-    }
 
     public static class HRCompanyFsm extends AbstractFSM<HrState, Data>{
         {
-            startWith(HrState.Ready, Uninitialized.Uninitialized);
+            startWith(HrState.Ready, new Data());
 
             when(HrState.Ready,
                     matchEvent(
                             Resume.class,
-                            Uninitialized.class,
-                            (resume, uninitialized) -> {
-                                System.out.println("when Ready match Resume:" + resume);
+                            Data.class,
+                            (resume, data) -> {
+                                System.out.println("HRC when Ready match Resume:" + resume);
+                                final ActorRef hrm = data.getActor(resume.getPosition());
+                                System.out.println("hrm:" + hrm);
+                                if (hrm != null) hrm.tell(resume, getSelf());
+                                else System.out.println("HRC not find position:" + resume.getPosition());
                                 return stay();
                             }
                     ).event(
                             Position.class,
-                            Uninitialized.class,
-                            (position, uninitialized) -> {
-                                System.out.println("when Ready match Position:" + position);
+                            Data.class,
+                            (position, data) -> {
+                                System.out.println("HRC when Ready match Position:" + position);
                                 final ActorRef hrm = getContext().actorOf(Props.create(HRManagerFsm.class));
                                 hrm.tell(position, getSelf());
-                                return stay();
+                                return stay().using(data.addPosition(position, hrm));
                             }
                     ));
 
             whenUnhandled(
                     matchAnyEvent(
                             (event, state) -> {
-                                System.out.println("unhandled, event:" + event + " stateName:" + stateName() + "state:" + state);
+                                System.out.println("HRC unhandled, event:" + event + " stateName:" + stateName() + "state:" + state);
                                 return stay();
                             }
                     )
