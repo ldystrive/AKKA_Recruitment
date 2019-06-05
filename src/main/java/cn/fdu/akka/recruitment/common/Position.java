@@ -24,6 +24,10 @@ public class Position {
         this.companyRef = companyRef;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public Position(String name) {
         this.name = name;
         this.hrRef = null;

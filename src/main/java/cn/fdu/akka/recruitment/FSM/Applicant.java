@@ -96,6 +96,8 @@ public class Applicant extends AbstractFSM<State, Data>{
 			return data;
 		}
 
+
+
 		public Data addElement(Object r) {
 			List<Object> newdata;
 			if(data != null) {
