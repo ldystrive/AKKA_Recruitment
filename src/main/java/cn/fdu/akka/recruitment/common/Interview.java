@@ -23,6 +23,10 @@ public final class Interview {
 		this.place = "zj";
 	}
 
+	public Resume getResume(){
+		return resume;
+	}
+
 	public String toString() {
 		return "Interview_" + resume + "_(" + date + ")_" + place;
 	}

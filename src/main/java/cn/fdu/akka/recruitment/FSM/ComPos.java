@@ -27,7 +27,7 @@ public class ComPos extends AbstractFSM<State, Data>{
 				    final ActorRef ComInterview = getContext().actorOf(Props.create(ComApplicant.class));
 				    ActorRef hr = data.getHRRef();
 				    Position p = new Position(position.getName(), hr, ComInterview);
-				    hr.tell(position, getSelf());
+				    hr.tell(p, getSelf());
 				    return stay().using(data.addPosition(position, ComInterview));
 			    }))
 		);

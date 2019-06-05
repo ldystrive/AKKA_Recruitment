@@ -14,14 +14,7 @@ import static cn.fdu.akka.recruitment.FSM.ComApplicant.State.*;
 public class ComApplicant extends AbstractFSM<State, Data>{
 
 	{
-		startWith(Init, new Data());
-		when(
-			Init,
-			matchEvent(
-				Resume.class,
-				Data.class,
-				(resume, data) -> goTo(WaitingForInterview).using(data.addResume(resume)))
-		);
+		startWith(WaitingForInterview, new Data());
 		when(
 			WaitingForInterview,
 			matchEvent(
@@ -41,9 +34,9 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 				Data.class,
 				(negotiation, data) -> {
 					getSender().tell(new CompanyOpinion(true), getSelf());
-					Resume resume = data.getReume();
+					Resume resume = data.getInterview().getResume();
 					Offer offer = new Offer(resume);
-					resume.getHrRef().tell(offer, getSelf());
+					getSender().tell(offer, getSelf());
 					return goTo(End);
 				}
 			)
@@ -52,7 +45,6 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 	}
 
 	enum State{
-		Init,
 		WaitingForInterview,
 		WaitingForNegociate,
 		End
@@ -88,6 +80,10 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 			Data d = new Data(this);
 			d.map.put("Interview", i);
 			return d;
+		}
+
+		public Interview getInterview(){
+			return (Interview) map.get("Interview");
 		}
 
 	}
