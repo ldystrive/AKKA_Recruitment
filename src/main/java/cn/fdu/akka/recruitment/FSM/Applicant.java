@@ -22,8 +22,8 @@ public class Applicant extends AbstractFSM<State, Data>{
 				Data.class,
 				(resume, data) -> {
 					System.out.println("Init matchEvent Resume: " + resume);
-					//resume.getHrRef().tell(resume, getSelf());
 					resume.getHrRef().tell(resume, getSelf());
+//					resume.getHrRef().tell(resume.toString(), getSelf());
 					return goTo(WaitingForInterview).using(data.addElement(resume));
 				}));
 
@@ -34,6 +34,8 @@ public class Applicant extends AbstractFSM<State, Data>{
 				Data.class,
 				(interview, data) -> {
 					System.out.println("WaitingForInterview matchEvent Interview, interview:" + interview);
+					// Always agree.
+					getSender().tell(new ApplicantOpinion(true), getSelf());
 					return goTo(WaitingForNegotiation).using(data.addElement(interview));
 				}));
 
@@ -44,6 +46,8 @@ public class Applicant extends AbstractFSM<State, Data>{
 				Data.class,
 				(negotiation, data) -> {
 					System.out.println("WaitingForNegotiation matchEvent Negotiation, Negotiation:" + negotiation);
+					// Always agree.
+					getSender().tell(new ApplicantOpinion(true), getSelf());
 					return goTo(WaitingForOffer).using(data.addElement(negotiation));
 				}));
 
@@ -61,7 +65,7 @@ public class Applicant extends AbstractFSM<State, Data>{
 			End,
 			matchAnyEvent(
 				(event, state) -> {
-					System.out.println("End");
+					System.out.println("Applicant End");
 					return stay();
 				})
 		);
@@ -103,6 +107,10 @@ public class Applicant extends AbstractFSM<State, Data>{
 			}
 			newdata.add(r);
 			return new Data(newdata);
+		}
+
+		public Resume getResume() {
+			return (Resume)data.get(0);
 		}
 
 		@Override

@@ -88,7 +88,7 @@ public class HR {
                             ApplicantOpinion.class,
                             Data.class,
                             (opinion, data) -> {
-                                System.out.println("Interview Applicant Opinion is " + opinion);
+                                System.out.println("Interview Applicant Opinion is " + opinion.getOpinion());
                                 if (opinion.getOpinion()) {
                                     if (data.getCompanyReady()) {
                                         return goTo(_State.Negotiation).using(new Data().addResume(data.getResume()));
@@ -106,7 +106,7 @@ public class HR {
                             CompanyOpinion.class,
                             Data.class,
                             (opinion, data) -> {
-                                System.out.println("Interview Company Opinion is " + opinion);
+                                System.out.println("Interview Company Opinion is " + opinion.getOpinion());
                                 if (opinion.getOpinion()) {
                                     if (data.getApplicantReady()) {
                                         return goTo(_State.Negotiation).using(new Data().addResume(data.getResume()));
