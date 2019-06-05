@@ -27,6 +27,10 @@ public final class Resume {
 
 	public Position getPosition() { return position; }
 
+	public Resume setHrRef(ActorRef hr) {
+		return new Resume(this.name, this.position, hr, this.applicantRef);
+	}
+
 	public String toString() {
 		return name + '_' + position;
 	}
