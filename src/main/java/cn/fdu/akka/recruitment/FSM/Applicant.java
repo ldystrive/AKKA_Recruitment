@@ -23,7 +23,7 @@ public class Applicant extends AbstractFSM<State, Data>{
 				(resume, data) -> {
 					System.out.println("Init matchEvent Resume: " + resume);
 					//resume.getHrRef().tell(resume, getSelf());
-					resume.getHrRef().tell(resume.toString(), getSelf());
+					resume.getHrRef().tell(resume, getSelf());
 					return goTo(WaitingForInterview).using(data.addElement(resume));
 				}));
 
@@ -91,6 +91,8 @@ public class Applicant extends AbstractFSM<State, Data>{
 		public List<Object> getData(){
 			return data;
 		}
+
+
 
 		public Data addElement(Object r) {
 			List<Object> newdata;
