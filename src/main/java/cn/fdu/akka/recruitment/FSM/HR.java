@@ -92,6 +92,9 @@ public class HR {
                                 System.out.println("Interview Applicant Opinion is " + opinion.getOpinion());
                                 if (opinion.getOpinion()) {
                                     if (data.getCompanyReady()) {
+                                        final Resume resume = data.getResume();
+                                        resume.getApplicantRef().tell(new Negotiation(resume), getSelf());
+                                        resume.getPosition().getCompanyRef().tell(new Negotiation(resume), getSelf());
                                         return goTo(_State.Negotiation).using(new Data().addResume(data.getResume()));
                                     } else {
                                         return stay().using(data.setApplicantReady(true));
@@ -110,6 +113,9 @@ public class HR {
                                 System.out.println("Interview Company Opinion is " + opinion.getOpinion());
                                 if (opinion.getOpinion()) {
                                     if (data.getApplicantReady()) {
+                                        final Resume resume = data.getResume();
+                                        resume.getApplicantRef().tell(new Negotiation(resume), getSelf());
+                                        resume.getPosition().getCompanyRef().tell(new Negotiation(resume), getSelf());
                                         return goTo(_State.Negotiation).using(new Data().addResume(data.getResume()));
                                     } else {
                                         return stay().using(data.setCompanyReady(true));
@@ -138,8 +144,8 @@ public class HR {
                                     }
                                 } else {
                                     Resume resume = data.getResume();
-                                    resume.getApplicantRef().tell(new Interview(resume), getSelf());
-                                    resume.getPosition().getCompanyRef().tell(new Interview(resume), getSelf());
+                                    resume.getApplicantRef().tell(new Negotiation(resume), getSelf());
+                                    resume.getPosition().getCompanyRef().tell(new Negotiation(resume), getSelf());
                                     return stay().using(data.init());
                                 }
                             }
