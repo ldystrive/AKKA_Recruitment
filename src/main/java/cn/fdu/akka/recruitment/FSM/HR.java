@@ -69,7 +69,8 @@ public class HR {
                     matchEvent(
                             Resume.class,
                             Data.class,
-                            (resume, data) -> {
+                            (oldResume, data) -> {
+                                final Resume resume = oldResume.setHrRef(getSelf());
                                 System.out.println("HR Init with Resume:" + resume);
                                 resume.getApplicantRef().tell(new Interview(resume), getSelf());
                                 resume.getPosition().getCompanyRef().tell(new Interview(resume), getSelf());
