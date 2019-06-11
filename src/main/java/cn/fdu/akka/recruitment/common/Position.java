@@ -5,43 +5,43 @@ import javafx.geometry.Pos;
 
 public class Position {
 
-    private String name;
-    private String comName;
-    private final ActorRef hrRef;
-    private final ActorRef companyRef;
+	private String name;
+	private String comName;
+	private final ActorRef companyRef;
 
-    public ActorRef getCompanyRef(){
-        return this.companyRef;
-    }
+	public ActorRef getCompanyRef(){
+		return this.companyRef;
+	}
 
-    public Position () {
-        this.hrRef = null;
-        this.companyRef = null;
-    }
+	public String getComName(){return comName;}
 
-    public Position(String name, ActorRef hrRef, ActorRef companyRef) {
-        this.name = name;
-        this.hrRef = hrRef;
-        this.companyRef = companyRef;
-    }
+	public Position () {
+		this.companyRef = null;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public Position(String name, String comName, ActorRef companyRef) {
+		this.name = name;
+		this.comName = comName;
+		this.companyRef = companyRef;
+	}
 
-    public Position(String name) {
-        this.name = name;
-        this.hrRef = null;
-        this.companyRef = null;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public Position(Position position) {
-        this.name = position.name;
-        this.hrRef = position.hrRef;
-        this.companyRef = position.companyRef;
-    }
+	public Position(String name, String comName) {
+		this.name = name;
+		this.comName = comName;
+		this.companyRef = null;
+	}
 
-    public String toString() {
-        return name;
-    }
+	public Position(Position position) {
+		this.name = position.name;
+		this.comName = position.comName;
+		this.companyRef = position.companyRef;
+	}
+
+	public String toString() {
+		return name + '_' + comName;
+	}
 }

@@ -26,8 +26,10 @@ import cn.fdu.akka.recruitment.FSM.Company;
 import cn.fdu.akka.recruitment.FSM.HRCompany;
 import cn.fdu.akka.recruitment.common.Position;
 import cn.fdu.akka.recruitment.common.Query;
+import cn.fdu.akka.recruitment.common.Resume;
 import scala.concurrent.duration.FiniteDuration;
 import scala.concurrent.Future;
+import scala.concurrent.Await;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,10 +48,6 @@ public class RecruitmentServer extends AllDirectives{
 	private static final HashMap<String, ActorRef> companies = new HashMap<>();
 	private static final HashMap<String, ActorRef> applicants = new HashMap<>();
 	private static final ActorSystem system = ActorSystem.create("routes");
-
-	public RecruitmentServer() {
-		this.recruitment = null;
-	}
 
 	public static void main(String [] args) throws Exception{
 
@@ -70,14 +68,55 @@ public class RecruitmentServer extends AllDirectives{
 				.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
 				.thenAccept(unbound -> system.terminate()); // and shutdown when done
 	}
+
+	private static ActorRef getComApplicant(String comName, String posName, String resumeName){
+		final ActorRef com = companies.get(comName);
+		Position p = new Position(posName, comName, null);
+		Resume resume = new Resume(resumeName, p, null, null);
+		final Timeout timeout = Timeout.durationToTimeout(FiniteDuration.apply(5, TimeUnit.SECONDS));
+		Future<Object> future = Patterns.ask(com, resume, timeout);
+		ActorRef comApplicant = null;
+		try {
+			comApplicant = (ActorRef) Await.result(future, timeout.duration());
+		} catch (Exception e){
+			System.out.println(e);
+		}
+		return comApplicant;
+
+	}
+
+	private static String FSMStateQuery(ActorRef fsm){
+		final Timeout timeout = Timeout.durationToTimeout(FiniteDuration.apply(5, TimeUnit.SECONDS));
+		Future<Object> future = Patterns.ask(fsm, new Query(), timeout);
+		String state;
+		try {
+			state = (String) Await.result(future, timeout.duration());
+		}catch (Exception e){
+			System.out.println(e);
+			state = "false";
+		}
+		return state;
+	}
+
+
 	public Route createRoute() {
 		return concat(
 				path("positionsquery",() -> concat(
 						get(() ->{
 							System.out.println("get");
 							final Timeout timeout = Timeout.durationToTimeout(FiniteDuration.apply(5, TimeUnit.SECONDS));
-							CompletionStage<ArrayList<Position>> pos = ask(recruitment, new GetPositions(), timeout).thenApply(ArrayList.class::cast);
-							return completeOKWithFuture(pos, Jackson.marshaller());
+							Future<Object> future = Patterns.ask(hr.get(0), new Query(), timeout);
+							List<Position> poslist = new ArrayList<>();
+							try {
+								poslist = (ArrayList<Position>)(Await.result(future, timeout.duration()));
+							} catch (Exception e) {
+								System.out.println(e);
+							}
+							StringBuilder str = new StringBuilder();
+							for (Position a : poslist){
+								str.append(a.toString() + '\n');
+							}
+							return complete(StatusCodes.ACCEPTED, str.toString());
 						})
 				)),
 				path("companyquery",()->concat(
@@ -90,10 +129,50 @@ public class RecruitmentServer extends AllDirectives{
 							if(companies.containsKey(companyname)){
 								return complete(StatusCodes.ACCEPTED, "existed");
 							} else{
-								companies.put(companyname, system.actorOf(Props.create(Company.class)));
+								final ActorRef com = system.actorOf(Props.create(Company.class));
+								com.tell(hr.get(0), ActorRef.noSender());
+								companies.put(companyname, com);
 								return complete(StatusCodes.ACCEPTED, "done");
 							}}))
-				))
+				)),
+				path("newposition", ()->(
+						post(()->parameter("comname", comname->
+								parameter("pos", pos->{
+									if(companies.containsKey(comname)){
+										final ActorRef com = companies.get(comname);
+										Position p = new Position(pos, comname);
+										com.tell(p, ActorRef.noSender());
+										return complete(StatusCodes.ACCEPTED, "done");
+									}else{
+										return complete(StatusCodes.ACCEPTED, comname + " not found");
+									}})))
+				)),
+				path("companyResumeQuery", ()->(
+						post(()->parameter("resumeName",resumeName->
+								parameter("positionName",positionName->
+										parameter("comName", comName->{
+											if(companies.containsKey(comName)){
+												ActorRef comApplicant = getComApplicant(comName, positionName, resumeName);
+												String state = FSMStateQuery(comApplicant);
+												return complete(StatusCodes.OK, state);
+											} else{
+												return complete(StatusCodes.ACCEPTED, "not found");
+											}}))))
+				)),
+				path("companyOpinion", ()->(
+						post(()->parameter("resumeName",resumeName->
+								parameter("positionName",positionName->
+										parameter("comName", comName->
+										parameter("opinion", opinion->{
+											if(companies.containsKey(comName)){
+												ActorRef comApplicant = getComApplicant(comName, positionName, resumeName);
+												Boolean op = opinion.equals("1");
+												comApplicant.tell(op, ActorRef.noSender());
+												String state = FSMStateQuery(comApplicant);
+												return complete(StatusCodes.OK, state);
+											} else{
+												return complete(StatusCodes.ACCEPTED, "not found");
+											}})))))))
 		);
 	}
 
@@ -127,8 +206,5 @@ public class RecruitmentServer extends AllDirectives{
 					.matchAny(o->log.info("Invalid message"))
 					.build();
 		}
-
-
 	}
-
 }

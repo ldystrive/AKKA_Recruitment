@@ -17,6 +17,8 @@ public final class Resume {
 		this.applicantRef = applicantRef;
 	}
 
+	public String getName() {return name;}
+
 	public Resume(Resume r) {
 		this(r.name, r.position, r.hrRef, r.applicantRef);
 	}
