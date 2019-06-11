@@ -99,25 +99,18 @@ public class RecruitmentServer extends AllDirectives{
 				)),
 				path("resume", () -> concat(
 						post(() -> parameter("applicant", applicant ->
-							parameter("company", company -> {
-								Resume resume = new Resume(applicant, company, null, null);
-								if (applicants.containsKey(resume)) {
-									return complete(StatusCodes.ACCEPTED, "existed");
-								} else {
-									applicants.put(resume.toString(), system.actorOf(Props.create(Applicant.class)));
-									return complete(StatusCodes.ACCEPTED, "done");
-								}
-							})
-						))
-				)),
-				path("applicantstatus", () -> concat (
-						get(() -> parameter("applicant", applicant ->
-								parameter("company", company -> {
-									Resume resume = new Resume(applicant, company, null, null);
-									if (applicants.containsKey(resume)) {
-
-									} else return complete(StatusCodes.ACCEPTED, "not existed");
-								})))
+							parameter("company", company ->
+								parameter("position", position -> {
+									final Resume resume = new Resume(applicant, new Position(position, company, null), hr.get(0), null);
+									if(applicants.containsKey(resume.toString())) {
+										return complete(StatusCodes.ACCEPTED, "existed");
+									} else {
+										final ActorRef appl = system.actorOf(Props.create(Applicant.class));
+										applicants.put(resume.toString(), appl);
+										appl.tell(resume.setAppRef(appl), ActorRef.noSender());
+										return complete(StatusCodes.ACCEPTED, "done");
+									}
+								}))))
 				))
 		);
 	}
