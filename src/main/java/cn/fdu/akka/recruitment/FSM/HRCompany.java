@@ -2,6 +2,7 @@ package cn.fdu.akka.recruitment.FSM;
 
 import akka.actor.AbstractFSM;
 import akka.actor.Props;
+import akka.dispatch.sysmsg.Suspend;
 import cn.fdu.akka.recruitment.common.*;
 import cn.fdu.akka.recruitment.FSM.HRManager.HRManagerFsm;
 import akka.actor.ActorRef;
@@ -18,28 +19,34 @@ public class HRCompany {
     }
 
     public final static class Data{
-        final HashMap<Position, ActorRef> map;
+        final HashMap<String, ActorRef> map;
 
         public Data() {
-            map = new HashMap<Position, ActorRef>();
+            map = new HashMap<>();
         }
 
         public Data(Data d) {
-            this.map = new HashMap<Position, ActorRef>(d.map);
+            this.map = new HashMap<>(d.map);
         }
 
         public Data addPosition(Position position, ActorRef actor) {
+
             Data d = new Data(this);
-            d.map.put(position, actor);
+            d.map.put(position.toString(), actor);
             System.out.println("Position: " + position + " hrm: " + actor);
             return d;
         }
 
-        public ActorRef getActor(Position position) {
-            return this.map.get(position);
+        public boolean cantainsPosition(Position position){
+            return this.map.containsKey(position.toString());
         }
 
-        public List<Position> getPositions(){
+        public ActorRef getActor(Position position) {
+            return this.map.get(position.toString());
+        }
+
+        public List<String> getPositions(){
+            System.out.println(map.keySet());
             return new ArrayList<>(map.keySet());
         }
 
@@ -65,15 +72,19 @@ public class HRCompany {
                             Position.class,
                             Data.class,
                             (position, data) -> {
+
+                                if(data.cantainsPosition(position)) { return stay().using(data);}
                                 System.out.println("HRC when Ready match Position:" + position);
                                 final ActorRef hrm = getContext().actorOf(Props.create(HRManagerFsm.class));
                                 hrm.tell(position, getSelf());
+                                System.out.println(position.getName());
                                 return stay().using(data.addPosition(position, hrm));
                             })
                     .event(
                             Query.class,
                             Data.class,
                            (query, data) -> {
+                                System.out.println("query positions");
                                 getSender().tell(data.getPositions(), getSelf());
                                 return stay().using(data);
                            })
