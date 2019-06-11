@@ -9,6 +9,7 @@ public class HR {
 
     public static enum _State {
         Uninit,
+        WaitResume,
         Interview,
         Negotiation,
         Offer,
@@ -72,17 +73,27 @@ public class HR {
                             (oldResume, data) -> {
                                 final Resume resume = oldResume.setHrRef(getSelf());
                                 System.out.println("HR Init with Resume:" + resume);
-                                resume.getApplicantRef().tell(new Interview(resume), getSelf());
-                                resume.getPosition().getCompanyRef().tell(new Interview(resume), getSelf());
-                                return goTo(_State.Interview).using(data.addResume(resume));
+                                resume.getPosition().getCompanyRef().tell(resume, getSelf());
+                                return goTo(_State.WaitResume).using(data);
                             }
                     ).anyEvent(
                             (event, state) -> {
                                 System.out.println("HR Uninit, event:" + event);
-                                return stay();
+                                return stay().using(state);
                             }
                     )
             );
+
+            when(_State.WaitResume,
+                    matchEvent(
+                            Resume.class,
+                            Data.class,
+                            (resume, data) -> {
+                                resume.getApplicantRef().tell(new Interview(resume), getSelf());
+                                resume.getPosition().getCompanyRef().tell(new Interview(resume), getSelf());
+                                return goTo(_State.Interview).using(data.addResume(resume));
+                            }
+                    ));
 
             when(_State.Interview,
                     matchEvent(
@@ -100,7 +111,7 @@ public class HR {
                                         return stay().using(data.setApplicantReady(true));
                                     }
                                 } else {
-                                    Resume resume = data.getResume();
+                                    final Resume resume = data.getResume();
                                     resume.getApplicantRef().tell(new Interview(resume), getSelf());
                                     resume.getPosition().getCompanyRef().tell(new Interview(resume), getSelf());
                                     return stay().using(data.init());
@@ -121,7 +132,7 @@ public class HR {
                                         return stay().using(data.setCompanyReady(true));
                                     }
                                 } else {
-                                    Resume resume = data.getResume();
+                                    final Resume resume = data.getResume();
                                     resume.getApplicantRef().tell(new Interview(resume), getSelf());
                                     resume.getPosition().getCompanyRef().tell(new Interview(resume), getSelf());
                                     return stay().using(data.init());
@@ -143,7 +154,7 @@ public class HR {
                                         return stay().using(data.setApplicantReady(true));
                                     }
                                 } else {
-                                    Resume resume = data.getResume();
+                                    final Resume resume = data.getResume();
                                     resume.getApplicantRef().tell(new Negotiation(resume), getSelf());
                                     resume.getPosition().getCompanyRef().tell(new Negotiation(resume), getSelf());
                                     return stay().using(data.init());
@@ -161,7 +172,7 @@ public class HR {
                                         return stay().using(data.setCompanyReady(true));
                                     }
                                 } else {
-                                    Resume resume = data.getResume();
+                                    final Resume resume = data.getResume();
                                     resume.getApplicantRef().tell(new Interview(resume), getSelf());
                                     resume.getPosition().getCompanyRef().tell(new Interview(resume), getSelf());
                                     return stay().using(data.init());
