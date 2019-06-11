@@ -40,6 +40,9 @@ import java.util.regex.Pattern;
 
 import static akka.pattern.PatternsCS.ask;
 
+import cn.fdu.akka.recruitment.common.*;
+import cn.fdu.akka.recruitment.FSM.*;
+
 public class RecruitmentServer extends AllDirectives{
 
 
@@ -172,7 +175,22 @@ public class RecruitmentServer extends AllDirectives{
 												return complete(StatusCodes.OK, state);
 											} else{
 												return complete(StatusCodes.ACCEPTED, "not found");
-											}})))))))
+											}}))))))),
+				path("resume", () -> concat(
+						post(() -> parameter("applicant", applicant ->
+							parameter("company", company ->
+								parameter("position", position -> {
+									final Resume resume = new Resume(applicant, new Position(position, company, null), hr.get(0), null);
+									if(applicants.containsKey(resume.toString())) {
+										return complete(StatusCodes.ACCEPTED, "existed");
+									} else {
+										final ActorRef appl = system.actorOf(Props.create(Applicant.class));
+										applicants.put(resume.toString(), appl);
+										appl.tell(resume.setAppRef(appl), ActorRef.noSender());
+										return complete(StatusCodes.ACCEPTED, "done");
+									}
+								}))))
+				))
 		);
 	}
 

@@ -47,7 +47,6 @@ public class HRManager {
                             Data.class,
                             (position, data) -> {
                                 System.out.println("HRM when Uninit match Position:" + position);
-                                position.getCompanyRef().tell("SUCCESS!", getSelf());
                                 return goTo(_State.Ready).using(data.addPosition(position));
                             }
                     ).anyEvent(
@@ -65,7 +64,7 @@ public class HRManager {
                             (resume, data) -> {
                                 System.out.println("HRM when Ready match Resume:" + resume);
                                 final ActorRef hr = getContext().actorOf(Props.create(HRFsm.class));
-                                hr.tell(resume, getSelf());
+                                hr.tell(resume.setHrRef(hr), getSelf());
                                 return stay();
                             }
                     ).event(

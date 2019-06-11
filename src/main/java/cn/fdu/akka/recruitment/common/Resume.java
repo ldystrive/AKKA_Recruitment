@@ -33,6 +33,10 @@ public final class Resume {
 		return new Resume(this.name, this.position, hr, this.applicantRef);
 	}
 
+	public Resume setAppRef(ActorRef appl) {
+		return new Resume(this.name, this.position, this.hrRef, appl);
+	}
+
 	public String toString() {
 		return name + '_' + position;
 	}

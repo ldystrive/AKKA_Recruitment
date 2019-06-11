@@ -4,7 +4,6 @@ import akka.actor.ActorRef;
 import javafx.geometry.Pos;
 
 public class Position {
-
 	private String name;
 	private String comName;
 	private final ActorRef companyRef;

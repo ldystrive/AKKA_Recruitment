@@ -59,7 +59,7 @@ public class HRCompany {
                                 System.out.println("hrm:" + hrm);
                                 if (hrm != null) hrm.tell(resume, getSelf());
                                 else System.out.println("HRC not find position:" + resume.getPosition());
-                                return stay();
+                                return stay().using(data);
                             }
                     ).event(
                             Position.class,
@@ -75,7 +75,7 @@ public class HRCompany {
                             Data.class,
                            (query, data) -> {
                                 getSender().tell(data.getPositions(), getSelf());
-                                return stay();
+                                return stay().using(data);
                            })
             );
 
