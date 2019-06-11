@@ -91,7 +91,7 @@ public class HR {
                             (resume, data) -> {
                                 resume.getApplicantRef().tell(new Interview(resume), getSelf());
                                 resume.getPosition().getCompanyRef().tell(new Interview(resume), getSelf());
-                                return goTo(_State.Interview).using(data.addResume(resume));
+                                return goTo(_State.Interview).using(data.addResume(resume).init());
                             }
                     ));
 
@@ -106,7 +106,7 @@ public class HR {
                                         final Resume resume = data.getResume();
                                         resume.getApplicantRef().tell(new Negotiation(resume), getSelf());
                                         resume.getPosition().getCompanyRef().tell(new Negotiation(resume), getSelf());
-                                        return goTo(_State.Negotiation).using(new Data().addResume(data.getResume()));
+                                        return goTo(_State.Negotiation).using(new Data().addResume(data.getResume()).init());
                                     } else {
                                         return stay().using(data.setApplicantReady(true));
                                     }
@@ -127,7 +127,7 @@ public class HR {
                                         final Resume resume = data.getResume();
                                         resume.getApplicantRef().tell(new Negotiation(resume), getSelf());
                                         resume.getPosition().getCompanyRef().tell(new Negotiation(resume), getSelf());
-                                        return goTo(_State.Negotiation).using(new Data().addResume(data.getResume()));
+                                        return goTo(_State.Negotiation).using(new Data().addResume(data.getResume()).init());
                                     } else {
                                         return stay().using(data.setCompanyReady(true));
                                     }
@@ -149,6 +149,8 @@ public class HR {
                                 System.out.println("Negotiation Applicant Opinion is " + opinion);
                                 if (opinion.getOpinion()) {
                                     if (data.getCompanyReady()) {
+                                        final Resume resume = data.getResume();
+                                        resume.getPosition().getCompanyRef().tell(new WaitingOffer(), getSelf());
                                         return goTo(_State.Offer).using(new Data().addResume(data.getResume()));
                                     } else {
                                         return stay().using(data.setApplicantReady(true));
@@ -167,6 +169,8 @@ public class HR {
                                 System.out.println("Negotiation Company Opinion is " + opinion);
                                 if (opinion.getOpinion()) {
                                     if (data.getApplicantReady()) {
+                                        final Resume resume = data.getResume();
+                                        resume.getPosition().getCompanyRef().tell(new WaitingOffer(), getSelf());
                                         return goTo(_State.Offer).using(new Data().addResume(data.getResume()));
                                     } else {
                                         return stay().using(data.setCompanyReady(true));
@@ -188,6 +192,7 @@ public class HR {
                             (offer, data) -> {
                                 Resume resume = offer.getResume();
                                 resume.getApplicantRef().tell(offer, getSelf());
+                                System.out.println(offer);
                                 return goTo(_State.End);
                             }
                     )

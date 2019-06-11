@@ -89,8 +89,8 @@ public class Applicant extends AbstractFSM<State, Data>{
 				(negotiation, data) -> {
 					System.out.println("WaitingForNegotiation matchEvent Negotiation, Negotiation:" + negotiation);
 					// Always agree.
-					getSender().tell(new ApplicantOpinion(true), getSelf());
-					return goTo(WaitingForOffer).using(data.addElement(negotiation));
+//					getSender().tell(new ApplicantOpinion(true), getSelf());
+					return goTo(AlreadyCheckedNegotiation).using(data.addElement(negotiation));
 				})
 			.event(
 					Query.class,
@@ -110,7 +110,7 @@ public class Applicant extends AbstractFSM<State, Data>{
 				(opinion, data) -> {
 					if (opinion.getOpinion()) {
 						data.getInterview().getResume().getHrRef().tell(new ApplicantOpinion(true), getSelf());
-						return goTo(WaitingForInterview).using(data);
+						return goTo(WaitingForOffer).using(data);
 					} else {
 						data.getInterview().getResume().getHrRef().tell(new ApplicantOpinion(false), getSelf());
 						return stay().using(data);

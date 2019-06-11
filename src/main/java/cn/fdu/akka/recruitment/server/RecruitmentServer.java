@@ -170,7 +170,7 @@ public class RecruitmentServer extends AllDirectives{
 											if(companies.containsKey(comName)){
 												ActorRef comApplicant = getComApplicant(comName, positionName, resumeName);
 												Boolean op = opinion.equals("1");
-												comApplicant.tell(op, ActorRef.noSender());
+												comApplicant.tell(new Opinion(op), ActorRef.noSender());
 												String state = FSMStateQuery(comApplicant);
 												return complete(StatusCodes.OK, state);
 											} else{
@@ -185,7 +185,7 @@ public class RecruitmentServer extends AllDirectives{
 													if (applicants.containsKey(resume.toString())) {
 														ActorRef appRef = applicants.get(resume.toString());
 														Boolean op = opinion.equals("1");
-														appRef.tell(op, ActorRef.noSender());
+														appRef.tell(new Opinion(op), ActorRef.noSender());
 														String state = FSMStateQuery(appRef);
 														return complete(StatusCodes.OK, state);
 													} else {
