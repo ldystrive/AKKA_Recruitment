@@ -21,32 +21,89 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 				Interview.class,
 				Data.class,
 				(interview, data) -> {
-					// Always agree
-					getSender().tell(new CompanyOpinion(true), getSelf());
-					return goTo(WaitingForNegociate).using(data.addInterview(interview));
-
+					return goTo(AlreadyCheckedInterview).using(data.addInterview(interview));
+				})
+			.event(
+				Query.class,
+				Data.class,
+				(q, data)->{
+					getSender().tell("WaitingForInterview", getSelf());
+					return stay();
 				})
 		);
+
 		when(
-			WaitingForNegociate,
+			AlreadyCheckedInterview,
+			matchEvent(
+				Opinion.class,
+				Data.class,
+				(opinion, data) -> {
+					return goTo(WaitingForNegotiate);
+				})
+			.event(
+				Query.class,
+				Data.class,
+				(q, data)->{
+					getSender().tell("AlreadyCheckedInterview", getSelf());
+					return stay();
+				})
+		);
+
+		when(
+			WaitingForNegotiate,
 			matchEvent(
 				Negotiation.class,
 				Data.class,
 				(negotiation, data) -> {
+					return goTo(AlreadyCheckedNegotiation);
+				}
+			)
+			.event(
+				Query.class,
+				Data.class,
+				(q, data)->{
+					getSender().tell("WaitingForNegotiate", getSelf());
+					return stay();
+				}));
+
+		when(
+			AlreadyCheckedNegotiation,
+			matchEvent(
+				Opinion.class,
+				Data.class,
+				(opinion, data) -> {
 					getSender().tell(new CompanyOpinion(true), getSelf());
 					Resume resume = data.getInterview().getResume();
 					Offer offer = new Offer(resume);
 					getSender().tell(offer, getSelf());
 					return goTo(End);
+				})
+			.event(
+				Query.class,
+				Data.class,
+				(q, data)->{
+					getSender().tell("AlreadyCheckedInterview", getSelf());
+					return stay();
+			}));
+
+		when(
+			End,
+			matchAnyEvent(
+				(event, state)->{
+					System.out.println("Resume end");
+					return stay();
 				}
 			)
 		);
+
 		initialize();
 	}
 
 	enum State{
 		WaitingForInterview,
-		WaitingForNegociate,
+		AlreadyCheckedInterview,
+		WaitingForNegotiate,
+		AlreadyCheckedNegotiation,
 		End
 	}
 
@@ -87,6 +144,4 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 		}
 
 	}
-
-
 }
