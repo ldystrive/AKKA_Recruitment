@@ -176,6 +176,37 @@ public class RecruitmentServer extends AllDirectives{
 											} else{
 												return complete(StatusCodes.ACCEPTED, "not found");
 											}}))))))),
+				path("applicantopinion", ()->(
+						post(() -> parameter("applicant", applicant ->
+								parameter("company", company ->
+										parameter("position", position ->
+												parameter("opinion", opinion -> {
+													final Resume resume = new Resume(applicant, new Position(position, company, null), hr.get(0), null);
+													if (applicants.containsKey(resume.toString())) {
+														ActorRef appRef = applicants.get(resume.toString());
+														Boolean op = opinion.equals("1");
+														appRef.tell(op, ActorRef.noSender());
+														String state = FSMStateQuery(appRef);
+														return complete(StatusCodes.OK, state);
+													} else {
+														return complete(StatusCodes.ACCEPTED, "no found");
+													}
+												})))))
+						)),
+				path("resumestate", () -> concat(
+						post(() -> parameter("applicant", applicant ->
+								parameter("company", company ->
+										parameter("postition", position -> {
+											final Resume resume = new Resume(applicant, new Position(position, company, null), hr.get(0), null);
+											if (applicants.containsKey(resume.toString())) {
+												ActorRef appRef = applicants.get(resume.toString());
+												String state = FSMStateQuery(appRef);
+												return complete(StatusCodes.OK, state);
+											} else {
+												return complete(StatusCodes.ACCEPTED, "not found");
+											}
+										}))))
+				)),
 				path("resume", () -> concat(
 						post(() -> parameter("applicant", applicant ->
 							parameter("company", company ->
