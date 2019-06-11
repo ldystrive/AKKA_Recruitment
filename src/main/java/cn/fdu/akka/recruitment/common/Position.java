@@ -7,7 +7,6 @@ public class Position {
 
     private String name;
     private String comName;
-    private final ActorRef hrRef;
     private final ActorRef companyRef;
 
     public ActorRef getCompanyRef(){
@@ -15,13 +14,12 @@ public class Position {
     }
 
     public Position () {
-        this.hrRef = null;
         this.companyRef = null;
     }
 
-    public Position(String name, ActorRef hrRef, ActorRef companyRef) {
+    public Position(String name, String comName, ActorRef companyRef) {
         this.name = name;
-        this.hrRef = hrRef;
+        this.comName = comName;
         this.companyRef = companyRef;
     }
 
@@ -29,19 +27,19 @@ public class Position {
         return name;
     }
 
-    public Position(String name) {
+    public Position(String name, String comName) {
         this.name = name;
-        this.hrRef = null;
+        this.comName = comName;
         this.companyRef = null;
     }
 
     public Position(Position position) {
         this.name = position.name;
-        this.hrRef = position.hrRef;
+        this.comName = position.comName;
         this.companyRef = position.companyRef;
     }
 
     public String toString() {
-        return name;
+        return name + '_' + comName;
     }
 }
