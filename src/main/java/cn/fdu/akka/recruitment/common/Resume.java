@@ -37,6 +37,10 @@ public final class Resume {
 		return new Resume(this.name, this.position, this.hrRef, appl);
 	}
 
+	public Resume setPosition(Position position) {
+		return new Resume(this.name, position, this.hrRef, this.applicantRef);
+	}
+
 	public String toString() {
 		return name + '_' + position;
 	}

@@ -8,6 +8,10 @@ public class Position {
 	private String comName;
 	private final ActorRef companyRef;
 
+	public Position setCompanyRef(ActorRef ref) {
+		return new Position(this.name, this.comName, ref);
+	}
+
 	public ActorRef getCompanyRef(){
 		return this.companyRef;
 	}
