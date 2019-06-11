@@ -1,11 +1,9 @@
 package cn.fdu.akka.recruitment.FSM;
 
-
 import akka.actor.AbstractFSM;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import cn.fdu.akka.recruitment.common.*;
-import javafx.geometry.Pos;
 import cn.fdu.akka.recruitment.FSM.HR.HRFsm;
 
 import static cn.fdu.akka.recruitment.FSM.Company.State;
@@ -37,6 +35,7 @@ public class Company extends AbstractFSM<State, Data>{
 					positionOfCom.tell(data.getActorRef(), getSelf());
 					System.out.println("upload a new position");
 					positionOfCom.tell(position, getSelf());
+					
 					return stay();
 				}
 			)
