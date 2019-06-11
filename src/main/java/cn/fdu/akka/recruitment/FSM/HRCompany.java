@@ -7,7 +7,9 @@ import cn.fdu.akka.recruitment.FSM.HRManager.HRManagerFsm;
 import akka.actor.ActorRef;
 import javafx.geometry.Pos;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class HRCompany {
 
@@ -16,28 +18,32 @@ public class HRCompany {
     }
 
     public final static class Data{
-        final HashMap<String, ActorRef> map;
+        final HashMap<Position, ActorRef> map;
 
         public Data() {
-            map = new HashMap<String, ActorRef>();
+            map = new HashMap<Position, ActorRef>();
         }
 
         public Data(Data d) {
-            this.map = new HashMap<String, ActorRef>(d.map);
+            this.map = new HashMap<Position, ActorRef>(d.map);
         }
 
         public Data addPosition(Position position, ActorRef actor) {
             Data d = new Data(this);
-            d.map.put(position.toString(), actor);
+            d.map.put(position, actor);
             System.out.println("Position: " + position + " hrm: " + actor);
             return d;
         }
 
         public ActorRef getActor(Position position) {
-            return this.map.get(position.toString());
+            return this.map.get(position);
         }
-    }
 
+        public List<Position> getPositions(){
+            return new ArrayList<>(map.keySet());
+        }
+
+    }
 
     public static class HRCompanyFsm extends AbstractFSM<HrState, Data>{
         {
@@ -63,8 +69,15 @@ public class HRCompany {
                                 final ActorRef hrm = getContext().actorOf(Props.create(HRManagerFsm.class));
                                 hrm.tell(position, getSelf());
                                 return stay().using(data.addPosition(position, hrm));
-                            }
-                    ));
+                            })
+                    .event(
+                            Query.class,
+                            Data.class,
+                           (query, data) -> {
+                                getSender().tell(data.getPositions(), getSelf());
+                                return stay();
+                           })
+            );
 
             whenUnhandled(
                     matchAnyEvent(
