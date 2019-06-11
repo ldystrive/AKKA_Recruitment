@@ -38,6 +38,9 @@ import java.util.regex.Pattern;
 
 import static akka.pattern.PatternsCS.ask;
 
+import cn.fdu.akka.recruitment.common.*;
+import cn.fdu.akka.recruitment.FSM.*;
+
 public class RecruitmentServer extends AllDirectives{
 
 
@@ -93,6 +96,28 @@ public class RecruitmentServer extends AllDirectives{
 								companies.put(companyname, system.actorOf(Props.create(Company.class)));
 								return complete(StatusCodes.ACCEPTED, "done");
 							}}))
+				)),
+				path("resume", () -> concat(
+						post(() -> parameter("applicant", applicant ->
+							parameter("company", company -> {
+								Resume resume = new Resume(applicant, company, null, null);
+								if (applicants.containsKey(resume)) {
+									return complete(StatusCodes.ACCEPTED, "existed");
+								} else {
+									applicants.put(resume.toString(), system.actorOf(Props.create(Applicant.class)));
+									return complete(StatusCodes.ACCEPTED, "done");
+								}
+							})
+						))
+				)),
+				path("applicantstatus", () -> concat (
+						get(() -> parameter("applicant", applicant ->
+								parameter("company", company -> {
+									Resume resume = new Resume(applicant, company, null, null);
+									if (applicants.containsKey(resume)) {
+
+									} else return complete(StatusCodes.ACCEPTED, "not existed");
+								})))
 				))
 		);
 	}

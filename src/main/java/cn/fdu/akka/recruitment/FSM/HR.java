@@ -94,6 +94,7 @@ public class HR {
                                     if (data.getCompanyReady()) {
                                         final Resume resume = data.getResume();
                                         resume.getApplicantRef().tell(new Negotiation(resume), getSelf());
+                                        //FIXEDME!
                                         resume.getPosition().getCompanyRef().tell(new Negotiation(resume), getSelf());
                                         return goTo(_State.Negotiation).using(new Data().addResume(data.getResume()));
                                     } else {
