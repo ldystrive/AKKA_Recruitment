@@ -28,7 +28,7 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 				Data.class,
 				(q, data)->{
 					getSender().tell("WaitingForInterview", getSelf());
-					return stay();
+					return stay().using(data);
 				})
 		);
 
@@ -38,14 +38,15 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 				Opinion.class,
 				Data.class,
 				(opinion, data) -> {
-					return goTo(WaitingForNegotiate);
+					data.getInterview().getResume().getHrRef().tell(new CompanyOpinion(true), getSelf());
+					return goTo(WaitingForNegotiate).using(data);
 				})
 			.event(
 				Query.class,
 				Data.class,
 				(q, data)->{
-					getSender().tell("AlreadyCheckedInterview", getSelf());
-					return stay();
+					getSender().tell("Waiting for checking interview:" + data.getInterview().toString(), getSelf());
+					return stay().using(data);
 				})
 		);
 
@@ -55,7 +56,7 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 				Negotiation.class,
 				Data.class,
 				(negotiation, data) -> {
-					return goTo(AlreadyCheckedNegotiation);
+					return goTo(AlreadyCheckedNegotiation).using(data.addNegotiation(negotiation));
 				}
 			)
 			.event(
@@ -63,7 +64,7 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 				Data.class,
 				(q, data)->{
 					getSender().tell("WaitingForNegotiate", getSelf());
-					return stay();
+					return stay().using(data);
 				}));
 
 		when(
@@ -72,23 +73,49 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 				Opinion.class,
 				Data.class,
 				(opinion, data) -> {
-					getSender().tell(new CompanyOpinion(true), getSelf());
-					Resume resume = data.getInterview().getResume();
-					Offer offer = new Offer(resume);
-					getSender().tell(offer, getSelf());
-					return goTo(End);
+					data.getInterview().getResume().getHrRef().tell(new CompanyOpinion(true), getSelf());
+//					getSender().tell(new CompanyOpinion(true), getSelf());
+					return goTo(WaitingForOffer).using(data);
 				})
 			.event(
 				Query.class,
 				Data.class,
 				(q, data)->{
-					getSender().tell("AlreadyCheckedInterview", getSelf());
+					getSender().tell("Waiting for checking negotiation:" + data.getNegotiation().toString(), getSelf());
 					return stay();
 			}));
 
 		when(
+			WaitingForOffer,
+			matchEvent(
+				WaitingOffer.class,
+				Data.class,
+				(a, data)->{
+					Resume resume = data.getInterview().getResume();
+					Offer offer = new Offer(resume);
+					data.getInterview().getResume().getHrRef().tell(offer, getSelf());
+					return goTo(End).using(data);
+				})
+			.event(
+				Query.class,
+				Data.class,
+				(q, data)->{
+					getSender().tell("WaitingOffer", getSelf());
+					return stay();
+			})
+		);
+
+		when(
 			End,
-			matchAnyEvent(
+			matchEvent(
+					Query.class,
+					Data.class,
+					(query, data)-> {
+						getSender().tell("End", getSelf());
+						return stay();
+					}
+			)
+			.anyEvent(
 				(event, state)->{
 					System.out.println("Resume end");
 					return stay();
@@ -104,6 +131,7 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 		AlreadyCheckedInterview,
 		WaitingForNegotiate,
 		AlreadyCheckedNegotiation,
+		WaitingForOffer,
 		End
 	}
 
@@ -142,6 +170,17 @@ public class ComApplicant extends AbstractFSM<State, Data>{
 		public Interview getInterview(){
 			return (Interview) map.get("Interview");
 		}
+
+		public Data addNegotiation(Negotiation n){
+			Data d = new Data(this);
+			d.map.put("Negotiation", n);
+			return d;
+		}
+
+		public Negotiation getNegotiation(){
+			return (Negotiation) map.get("Negotiation");
+		}
+
 
 	}
 }
