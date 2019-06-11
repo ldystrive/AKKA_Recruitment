@@ -109,15 +109,15 @@ public class RecruitmentServer extends AllDirectives{
 							System.out.println("get");
 							final Timeout timeout = Timeout.durationToTimeout(FiniteDuration.apply(5, TimeUnit.SECONDS));
 							Future<Object> future = Patterns.ask(hr.get(0), new Query(), timeout);
-							List<Position> poslist = new ArrayList<>();
+							List<String> poslist = new ArrayList<>();
 							try {
-								poslist = (ArrayList<Position>)(Await.result(future, timeout.duration()));
+								poslist = (ArrayList<String>)(Await.result(future, timeout.duration()));
 							} catch (Exception e) {
 								System.out.println(e);
 							}
 							StringBuilder str = new StringBuilder();
-							for (Position a : poslist){
-								str.append(a.toString() + '\n');
+							for (String a : poslist){
+								str.append(a + '\n');
 							}
 							return complete(StatusCodes.ACCEPTED, str.toString());
 						})
@@ -196,7 +196,7 @@ public class RecruitmentServer extends AllDirectives{
 				path("resumestate", () -> concat(
 						post(() -> parameter("applicant", applicant ->
 								parameter("company", company ->
-										parameter("postition", position -> {
+										parameter("position", position -> {
 											final Resume resume = new Resume(applicant, new Position(position, company, null), hr.get(0), null);
 											if (applicants.containsKey(resume.toString())) {
 												ActorRef appRef = applicants.get(resume.toString());

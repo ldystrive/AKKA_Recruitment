@@ -43,4 +43,13 @@ public class Position {
 	public String toString() {
 		return name + '_' + comName;
 	}
+
+	@Override
+	public boolean equals(Object o){
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+		Position position = (Position) o;
+		return name.equals(position.name) && comName.equals(position.comName);
+	}
+
 }
