@@ -1,0 +1,40 @@
+<scxml initialstate="reset">
+    <state id="reset">
+        <transition event="watch_start" target="running"/>
+    </state>
+    <state id="running">
+        <transition event="watch_split" target="paused"/>
+        <transition event="watch_stop" target="stopped"/>
+    </state>
+    <state id="paused">
+        <transition event="watch_unsplit" target="running"/>
+        <transition event="watch_stop" target="stopped"/>
+    </state>
+    <state id="stopped">
+        <transition event="watch_reset" target="reset" cond="$username#.equals('WhileTrueDo')">
+            <log expr="Hello World"/>
+            <show id="password"/>
+            <new class="test" name="clock"/>
+            <send name="test" ref="test1"/>
+            <send name="test" ref="#self"/>
+            <tell name="test" event="watch_stop" expr="Hello test"/>
+            <assign id="password" expr="998244353"/>
+            <interface name="test"/>
+        </transition>
+        <receive target="#self">
+            <log expr="I receive"/>
+        </receive>
+
+    </state>
+    <datamodel>
+        <data id="username" expr="WhileTrueDo"/>
+        <data id="password" expr="123456"/>
+    </datamodel>
+    <eventmodel>
+        <event name="watch_start"/>
+        <event name="watch_split"/>
+        <event name="watch_stop"/>
+        <event name="watch_unsplit"/>
+        <event name="watch_reset"/>
+    </eventmodel>
+</scxml>

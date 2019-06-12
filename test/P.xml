@@ -1,0 +1,42 @@
+<scxml initialstate="Uinit0">
+    <datamodel>
+        <data id="next" expr="Tea"/>
+    </datamodel>
+    <eventmodel>
+        <event name="buy"/>
+        <event name="gotcoin"/>
+        <event name="Tea"/>
+        <event name="Coffee"/>
+    </eventmodel>
+    <state id="Uinit0">
+        <receive target="Uinit1"/>
+    </state>
+    <state id="Uinit1">
+        <receive target="Init"/>
+    </state>
+    <state id="Init">
+        <transition event="buy" target="Wait">
+            <tell name="VM" expr="" event="coin"/>
+        </transition>
+    </state>
+    <state id="Wait">
+        <transition event="gotcoin" target="WaitTea" cond="$next#.equals('Tea')">
+            <tell name="VM" expr="" event="ChooseTea"/>
+        </transition>
+        <transition event="gotcoin" target="WaitCoffee" cond="$next#.equals('Coffee')">
+            <tell name="VM" expr="" event="ChooseCoffee"/>
+        </transition>
+    </state>
+    <state id="WaitTea">
+        <transition event="Tea" target="Init">
+            <tell name="Top" expr="" event="gotTea"/>
+            <assign id="next" expr="Coffee"/>
+        </transition>
+    </state>
+    <state id="WaitCoffee">
+        <transition event="Coffee" target="Init">
+            <tell name="Top" expr="" event="gotCoffee"/>
+            <assign id="next" expr="Tea"/>
+        </transition>
+    </state>
+</scxml>
