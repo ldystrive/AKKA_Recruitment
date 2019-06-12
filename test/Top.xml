@@ -1,0 +1,36 @@
+<scxml initialstate="Uinit">
+    <datamodel/>
+    <fsmmodel>
+        <fsm name="P"/>
+        <fsm name="VM"/>
+    </fsmmodel>
+
+    <eventmodel>
+        <event name="init"/>
+        <event name="gotTea"/>
+        <event name="gotCoffee"/>
+    </eventmodel>
+    <state id="Uinit">
+        <transition event="init" target="Init">
+            <new class="P" name="P"/>
+            <new class="VM" name="VM"/>
+            <send name="VM" ref="P"/>
+            <send name="P" ref="VM"/>
+            <send name="VM" ref="#self" refname="Top"/>
+            <send name="P" ref="#self" refname="Top"/>
+        </transition>
+    </state>
+    <state id="Init">
+        <transition event="gotCoffee" target="#self">
+            <log expr="Coffee!!"/>
+        </transition>
+        <transition event="gotTea" target="#self">
+            <log expr="Tea!!"/>
+        </transition>
+        <transition event="buy" target="#self">
+            <log expr="Buy!!"/>
+            <tell name="P" expr="" event="buy"/>
+        </transition>
+
+    </state>
+</scxml>

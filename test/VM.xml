@@ -1,0 +1,27 @@
+<scxml initialstate="Uinit0">
+    <datamodel/>
+    <eventmodel>
+        <event name="coin"/>
+        <event name="ChooseTea"/>
+        <event name="ChooseCoffee"/>
+    </eventmodel>
+    <state id="Uinit0">
+        <receive target="Uinit1"/>
+    </state>
+    <state id="Uinit1">
+        <receive target="Init"/>
+    </state>
+    <state id="Init">
+        <transition event="coin" target="Choose">
+            <tell name="P" event="gotcoin" expr=""/>
+        </transition>
+    </state>
+    <state id="Choose">
+        <transition event="ChooseTea" target="Init">
+            <tell name="P" event="Tea"/>
+        </transition>
+        <transition event="ChooseCoffee" target="Init">
+            <tell name="P" event="Coffee"/>
+        </transition>
+    </state>
+</scxml>
